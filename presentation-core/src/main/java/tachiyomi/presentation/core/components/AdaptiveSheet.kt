@@ -1,5 +1,6 @@
 package tachiyomi.presentation.core.components
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -54,6 +55,7 @@ import kotlin.math.roundToInt
 
 private val sheetAnimationSpec = tween<Float>(durationMillis = 350)
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun AdaptiveSheet(
     isTabletUi: Boolean,

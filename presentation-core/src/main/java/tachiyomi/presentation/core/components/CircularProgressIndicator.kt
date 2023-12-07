@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 
 /**
@@ -38,30 +39,49 @@ import androidx.compose.ui.tooling.preview.Preview
  */
 @Composable
 fun CombinedCircularProgressIndicator(
+    //传入一个很返回Float作为状态
     progress: () -> Float,
     modifier: Modifier = Modifier,
 ) {
+    val density = LocalDensity.current
     AnimatedContent(
+        //AnimatedContent会根据 targetState的变化来进行动画
+        //AnimatedVisibility 知识单纯的做动画，没有targetState
+        //如果一直变化的话要用 contentKey
         targetState = progress() == 0f,
-        transitionSpec = { fadeIn() togetherWith fadeOut() },
+        // 一个返回 ContentTransform的lambda函数 this可以拿取到targetState的内容
+        // https://developer.android.com/reference/kotlin/androidx/compose/animation/ContentTransform
+        //https://developer.android.com/jetpack/compose/animation/composables-modifiers
+        transitionSpec = {
+            fadeIn() togetherWith fadeOut()
+        },
         label = "progressState",
         modifier = modifier,
     ) { indeterminate ->
         if (indeterminate) {
             // Indeterminate
+            // 为0 就一直正常转圈
             CircularProgressIndicator()
         } else {
             // Determinate
+            // 添加一个无限的动画
             val infiniteTransition = rememberInfiniteTransition(label = "infiniteRotation")
+
+            //后面 animate float用到这个无限float
+            //  animateFloat必须在一个无限动画的作用域上面
             val rotation by infiniteTransition.animateFloat(
                 initialValue = 0f,
                 targetValue = 360f,
+                //animationSpec： InfiniteRepeatableSpec<T> 在这里面是float
                 animationSpec = infiniteRepeatable(
+                    //使用线性的曲线，持续2000，默认0延迟
+                    //表示initialValue和targetValue之间的过去
                     animation = tween(2000, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart,
                 ),
                 label = "rotation",
             )
+            //可以监听progress()的变化， 放到CircularProgressIndicator里面库监听到
             val animatedProgress by animateFloatAsState(
                 targetValue = progress(),
                 animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
@@ -69,6 +89,7 @@ fun CombinedCircularProgressIndicator(
             )
             CircularProgressIndicator(
                 progress = { animatedProgress },
+                //旋转的视图， clockwise rotation is positive
                 modifier = Modifier.rotate(rotation),
             )
         }
@@ -78,13 +99,17 @@ fun CombinedCircularProgressIndicator(
 @Preview
 @Composable
 private fun CombinedCircularProgressIndicatorPreview() {
-    var progress by remember { mutableFloatStateOf(0f) }
+    var progress by remember {
+        // FloatStateOf的状态
+        mutableFloatStateOf(0f)
+    }
     MaterialTheme {
         Scaffold(
             bottomBar = {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
+                        // 使用when来切换progress的状态
                         progress = when (progress) {
                             0f -> 0.15f
                             0.15f -> 0.25f
