@@ -1,5 +1,6 @@
 package tachiyomi.presentation.core.components
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tachiyomi.presentation.core.theme.header
 
+@SuppressLint("ComposeModifierMissing")
 @Composable
 fun CollapsibleBox(
     heading: String,
