@@ -25,6 +25,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import tachiyomi.presentation.core.components.material.SecondaryItemAlpha
 
+//定义Modifier的其他
 fun Modifier.selectedBackground(isSelected: Boolean): Modifier = if (isSelected) {
     composed {
         val alpha = if (isSystemInDarkTheme()) 0.16f else 0.22f

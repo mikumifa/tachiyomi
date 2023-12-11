@@ -70,6 +70,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.sample
 import tachiyomi.presentation.core.components.Scroller.STICKY_HEADER_KEY_PREFIX
 
+//对水平的滑动栏目进行抽象，也及时去除了输入水平还是竖直
 /**
  * Draws horizontal scrollbar to a LazyList.
  *
@@ -104,6 +105,7 @@ private fun Modifier.drawScrollbar(
     reverseScrolling,
 ) { reverseDirection, atEnd, thickness, color, alpha ->
     val layoutInfo = state.layoutInfo
+    //得到视图的size
     val viewportSize = if (orientation == Orientation.Horizontal) {
         layoutInfo.viewportSize.width
     } else {
@@ -111,6 +113,7 @@ private fun Modifier.drawScrollbar(
     } - layoutInfo.beforeContentPadding - layoutInfo.afterContentPadding
     val items = layoutInfo.visibleItemsInfo
     val itemsSize = items.fastSumBy { it.size }
+    //当视图的size小， 或者，都显示完了，就不需要了
     val showScrollbar = items.size < layoutInfo.totalItemsCount || itemsSize > viewportSize
     val estimatedItemSize = if (items.isEmpty()) 0f else itemsSize.toFloat() / items.size
     val totalSize = estimatedItemSize * layoutInfo.totalItemsCount
@@ -119,13 +122,16 @@ private fun Modifier.drawScrollbar(
         0f
     } else {
         items
+            //找到强制放到开头的元素，使用拿个作为开头
             .fastFirstOrNull { (it.key as? String)?.startsWith(STICKY_HEADER_KEY_PREFIX)?.not() ?: true }!!
             .run {
+                //如何翻转的话， 要考虑最后的填充
                 val startPadding = if (reverseDirection) {
                     layoutInfo.afterContentPadding
                 } else {
                     layoutInfo.beforeContentPadding
                 }
+                //计算方式很特殊
                 startPadding + ((estimatedItemSize * index - offset) / totalSize * viewportSize)
             }
     }
@@ -136,7 +142,7 @@ private fun Modifier.drawScrollbar(
     drawContent()
     drawScrollbar()
 }
-
+//如何画。。。
 private fun ContentDrawScope.onDrawScrollbar(
     orientation: Orientation,
     reverseDirection: Boolean,
@@ -247,7 +253,7 @@ private val FadeOutAnimationSpec = tween<Float>(
 fun LazyListScrollbarPreview() {
     val state = rememberLazyListState()
     LazyColumn(
-        modifier = Modifier.drawVerticalScrollbar(state),
+        modifier = Modifier.drawVerticalScrollbar(state,true),
         state = state,
     ) {
         items(50) {
@@ -266,7 +272,7 @@ fun LazyListScrollbarPreview() {
 fun LazyListHorizontalScrollbarPreview() {
     val state = rememberLazyListState()
     LazyRow(
-        modifier = Modifier.drawHorizontalScrollbar(state),
+        modifier = Modifier.drawHorizontalScrollbar(state,true),
         state = state,
     ) {
         items(50) {

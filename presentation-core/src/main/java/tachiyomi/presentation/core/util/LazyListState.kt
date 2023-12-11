@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun LazyListState.isScrolledToStart(): Boolean {
+    //定义LazyListState 他的具体的值是派生出来的， 模块化抽象出来
     return remember {
         derivedStateOf {
             val firstItem = layoutInfo.visibleItemsInfo.firstOrNull()
