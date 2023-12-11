@@ -195,6 +195,8 @@ private fun Modifier.drawScrollbar(
         alpha: () -> Float,
     ) -> Unit,
 ): Modifier = composed {
+
+    //使用一个容量为1的流，来控制协程
     val scrolled = remember {
         MutableSharedFlow<Unit>(
             extraBufferCapacity = 1,
@@ -216,9 +218,12 @@ private fun Modifier.drawScrollbar(
     }
 
     val alpha = remember { Animatable(0f) }
+    //key值改变就吹重新开始
     LaunchedEffect(scrolled, alpha) {
         scrolled
+            //100秒采样一次，
             .sample(100)
+            //效果100ms之后开始变成1，然后开始淡出
             .collectLatest {
                 alpha.snapTo(1f)
                 alpha.animateTo(0f, animationSpec = FadeOutAnimationSpec)
