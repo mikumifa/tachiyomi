@@ -47,7 +47,9 @@ import androidx.compose.ui.unit.Dp
  * when this component is being pressed. `null` if this component is moving back to its default
  * state.
  */
+//高度的anime
 suspend fun Animatable<Dp, *>.animateElevation(
+    //从一个交互到另一个交互
     target: Dp,
     from: Interaction? = null,
     to: Interaction? = null,
